@@ -1,36 +1,53 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskTrack</title>
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+<body class="bg-gray-100">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+    <!-- ヘッダー（ナビバー） -->
+    <header class="bg-white shadow">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            <!-- Left: Logo -->
+            <div class="text-xl font-bold">
+                <a href="{{ route('dashboard') }}">TaskTrack</a>
+            </div>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
+            <!-- Right: Navigation -->
+            <ul class="flex gap-6 text-gray-700 font-medium">
+
+                <li><a href="" class="hover:text-blue-600">タスク一覧</a></li>
+                <li><a href="" class="hover:text-blue-600">実績</a></li>
+                <li><a href="" class="hover:text-blue-600">チーム</a></li>
+                <li><a href="" class="hover:text-blue-600">プロフィール</a></li>
+
+                <!-- Logout -->
+                <li>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="hover:text-red-600">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+
+        </nav>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        @yield('content')
+    </main>
+
+    <!-- フッター -->
+    <footer class="text-center py-4 text-gray-600 text-sm">
+        © TaskTrack 2025
+    </footer>
+
+</body>
 </html>
