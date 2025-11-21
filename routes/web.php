@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TaskController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\UserProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,10 +39,15 @@ Route::delete('tasks/destroy/{id}', [TaskController::class, 'destroy'])
     ->middleware(['auth'])
     ->name('tasks.destroy');
 
-    // TODO ここから再開
 Route::patch('tasks/{task}/complete', [TaskController::class, 'complete'])
     ->middleware(['auth'])
     ->name('tasks.complete');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('userProfile.userProfile');
+    // 後で実装する
+    Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
