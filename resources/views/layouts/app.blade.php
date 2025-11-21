@@ -25,7 +25,7 @@
                 <li><a href="{{ route('tasks.index') }}" class="hover:text-blue-600">タスク一覧</a></li>
                 <li><a href="" class="hover:text-blue-600">実績</a></li>
                 <li><a href="" class="hover:text-blue-600">チーム</a></li>
-                <li><a href="" class="hover:text-blue-600">プロフィール</a></li>
+                <li><a href="{{ route('userProfile.userProfile') }}" class="hover:text-blue-600">プロフィール</a></li>
 
                 <!-- Logout -->
                 <li>
