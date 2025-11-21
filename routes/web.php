@@ -9,19 +9,39 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])
     ->middleware(['auth'])
     ->name('dashboard');
 
-
-
 Route::get('tasks', [TaskController::class, 'index'])
     ->middleware(['auth'])
     ->name('tasks.index');
+
+Route::get('tasks/create', [TaskController::class, 'create'])
+    ->middleware(['auth'])
+    ->name('tasks.create');
+
+Route::post('tasks/store', [TaskController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('tasks.store');
+
+Route::get('tasks/show/{id}', [TaskController::class, 'show'])
+    ->middleware(['auth'])
+    ->name('tasks.show');
+
+Route::put('tasks/{task}', [TaskController::class, 'update'])
+    ->middleware(['auth'])
+    ->name('tasks.update');
+
+Route::delete('tasks/destroy/{id}', [TaskController::class, 'destroy'])
+    ->middleware(['auth'])
+    ->name('tasks.destroy');
+
+    // TODO ここから再開
+Route::patch('tasks/{task}/complete', [TaskController::class, 'complete'])
+    ->middleware(['auth'])
+    ->name('tasks.complete');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
