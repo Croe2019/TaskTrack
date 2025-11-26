@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Comment;
 
 class Task extends Model
 {
@@ -34,4 +35,9 @@ class Task extends Model
         ][$this->priority] ?? '';
     }
 
+    // リレーション
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->latest();
+    }
 }

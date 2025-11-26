@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\TaskService;
 use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
+use Illuminate\Support\Facades\Auth;
 
 
 class TaskController extends Controller
@@ -41,22 +42,36 @@ class TaskController extends Controller
         return view('tasks.show', compact('task'));
     }
 
+    // 更新
     public function update(UpdateTaskRequest $request, $id)
     {
-        try{
-            $this->service->updateTask($id, $request->validated());
-            return redirect()->route('tasks.index')->with('success', 'タスクを更新しました');
-        }catch(\Exception $e){
-            return redirect()->back()->with('error', $e->getMessage());
+        $task = $this->service->getFindTask($id);
+
+        if ($task->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', '他ユーザーのタスクは編集できません');
         }
+
+        if ($task->status === 'completed') {
+            return redirect()->back()->with('error', '完了したタスクは編集できません');
+        }
+
+        $this->service->updateTask($id, $request->all());
+        return redirect()->route('tasks.index')->with('success', 'タスクを更新しました');
     }
 
+    // 削除
     public function destroy($id)
     {
         $task = $this->service->getFindTask($id);
-        $this->service->deleteTask($task->id);
+
+        if ($task->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', '他ユーザーのタスクは削除できません');
+        }
+
+        $this->service->deleteTask($id);
         return redirect()->route('tasks.index')->with('success', 'タスクを削除しました');
     }
+
 
     public function complete($id)
     {
