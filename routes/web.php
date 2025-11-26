@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\TaskController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\CommentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,6 +48,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('userProfile.userProfile');
     // 後で実装する
     Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+
+    Route::post('/tasks/{task}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::put('/comments/{commentId}', [CommentController::class, 'update'])->name('comments.update');
+
 });
 
 Route::middleware('auth')->group(function () {
