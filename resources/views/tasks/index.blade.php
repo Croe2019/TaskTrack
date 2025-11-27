@@ -236,7 +236,7 @@
             </div>
             @if($comment->user_id === auth()->id())
             <div class="comment-actions">
-                <a href="{{ route('comments.edit', $comment->id) }}">編集</a>
+                <a href="{{ route('comments.update', $comment->id) }}">編集</a>
                 <form method="POST" action="{{ route('comments.destroy', $comment->id) }}" style="display:inline;">
                     @csrf
                     @method('DELETE')
