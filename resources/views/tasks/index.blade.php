@@ -193,23 +193,34 @@
 .add-comment button:hover {
     background: #2563eb;
 }
+
+.tag {
+    display: inline-block;
+    background: #e2e8f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-size: 12px;
+}
 </style>
 
 <div class="container">
 
     <!-- 検索・フィルタ -->
     <div class="search-filter">
-        <form>
-            <input type="text" placeholder="タイトル or タグ or 状態">
-            <button type="submit">検索</button>
-        </form>
+    <form method="GET" action="{{ route('tasks.index') }}">
+        <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="タイトル or タグ or 状態">
+        <button type="submit">検索</button>
+    </form>
+
         <div class="filters">
-            <a href="#">全て</a>
-            <a href="#">進行中</a>
-            <a href="#">完了済み</a>
-            <a href="#">期限切れ</a>
+            <a href="{{ route('tasks.index', ['status' => '']) }}">全て</a>
+            <a href="{{ route('tasks.index', ['status' => 'in_progress']) }}">進行中</a>
+            <a href="{{ route('tasks.index', ['status' => 'completed']) }}">完了済み</a>
+            <a href="{{ route('tasks.index', ['status' => 'not_started']) }}">未着手</a>
         </div>
     </div>
+
 
     <!-- 新規タスク -->
     <div class="add-task">
@@ -225,6 +236,11 @@
         </div>
         <div class="task-meta">
             期限: {{ $task->deadline ? $task->deadline->format('Y-m-d') : '未設定' }} | 状態: {{ $task->status_label }}
+        </div>
+        <div class="task-tags">
+            @foreach($task->tags as $tag)
+                <span class="tag">{{ $tag->name }}</span>
+            @endforeach
         </div>
 
 

@@ -9,6 +9,7 @@ use App\Repositories\TagRepository;
 use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Task;
 
 class TaskController extends Controller
 {
@@ -23,8 +24,8 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        // 必要ならリクエストフィルタを渡す
-        $tasks = $this->service->getAllTasks();
+        $filsters = $request->only(['keyword', 'status']);
+        $tasks = $this->service->searchTasks($filsters);
         return view('tasks.index', compact('tasks'));
     }
 
@@ -83,12 +84,23 @@ class TaskController extends Controller
     public function update(CreateTaskRequest $request, $id)
     {
         $task = $this->service->getFindTask($id);
+
+        $data = $request->validated();
+
+        // 既存タグ
+        $existingTagIds = $data['tag_ids'] ?? [];
+
+        // 新規タグ（文字列 → 配列）
+        $newTagNames = [];
+        if (!empty($data['tags'])) {
+            $newTagNames = array_map('trim', explode(',', $data['tags']));
+        }
         if ($task->user_id !== Auth::id()) {
             return redirect()->back()->with('error', '他ユーザーのタスクは編集できません');
         }
 
         try {
-            $this->service->updateTask($id, $request->validated());
+            $this->service->updateTask($id, $request->validated(), $newTagNames, $existingTagIds);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
