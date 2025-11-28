@@ -64,10 +64,12 @@ class TaskService
         });
     }
 
-    public function updateTask($id, array $data)
+    public function updateTask($id, array $data, array $newTagNames, array $existingTagIds = [])
     {
-        return DB::transaction(function () use ($id, $data){
+        return DB::transaction(function () use ($id, $data, $newTagNames, $existingTagIds){
             $task = $this->taskRepo->findById($id);
+            // ユーザー紐付け
+            $taskData['user_id'] = Auth::id();
 
             // 完了タスクは更新禁止
             if($task->status === 'completed')
@@ -75,7 +77,20 @@ class TaskService
                 throw new Exception('完了したタスクは編集できません');
             }
 
-            return $this->taskRepo->update($id, $data);
+             // 新規タグ作成 or 取得
+            $newTagIds = $this->tagRepo->getOrCreateTags($newTagNames);
+
+            // 既存タグ + 新規タグ をマージ
+            $allTagIds = array_merge($existingTagIds, $newTagIds);
+
+            // 紐付け
+            $this->taskRepo->attachTags($task, $allTagIds);
+
+            // 更新
+            $this->taskRepo->update($id, $data);
+
+            return $this->taskRepo;
+
         });
     }
 
@@ -92,7 +107,6 @@ class TaskService
         return $this->taskRepo->delete($id);
     }
 
-    // 検索機能の処理はあらかじめ用意しておく
     public function searchTasks(array $filters)
     {
         return $this->taskRepo->search($filters);

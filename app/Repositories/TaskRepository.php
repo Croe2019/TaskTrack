@@ -64,22 +64,21 @@ class TaskRepository
      */
     public function search(array $filters)
     {
-        $q = $this->task->query();
+        $query = $this->task->query();
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
 
         if (!empty($filters['keyword'])) {
-            $kw = $filters['keyword'];
-            $q->where(fn($q2) => $q2->where('title', 'like', "%{$kw}%")
-                                   ->orWhere('description', 'like', "%{$kw}%"));
+            $keyword = $filters['keyword'];
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                ->orWhereHas('tags', fn($q2) => $q2->where('name', 'like', "%{$keyword}%"));
+            });
         }
 
-        if (!empty($filters['status'])) $q->where('status', $filters['status']);
-        if (!empty($filters['priority'])) $q->where('priority', $filters['priority']);
-        if (!empty($filters['tag'])) {
-            $tagId = (int)$filters['tag'];
-            $q->whereHas('tags', fn($q2) => $q2->where('tags.id', $tagId));
-        }
-
-        return $q->with(['comments.user','tags'])->get();
+        return $query->get();
     }
 
 }
