@@ -56,21 +56,9 @@
                 <input type="datetime-local" name="completed_at" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;">
             </div>
 
-            <!-- タグ -->
-            {{-- <div class="form-group">
-                <label>タグ</label>
-                <div class="tags">
+            <h3>新しいタグ（カンマ区切り）</h3>
+            <input type="text" name="tags" placeholder="例: 重要, クライアント, バグ">
 
-                    <!-- 追加タグ入力欄 -->
-                    <input type="text" name="new_tag" class="tag add-tag" placeholder="＋ 追加タグ">
-                </div>
-            </div>
-
-            <!-- ファイル添付（任意） -->
-            <div class="form-group">
-                <label>ファイル添付</label>
-                <input type="file" name="attachment">
-            </div> --}}
 
             <!-- ボタン -->
             <div class="buttons" style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
@@ -78,7 +66,6 @@
                 <button class="btn btn-cancel" type="button" onclick="history.back()" style="padding:10px 20px; border:none; border-radius:6px; background:#ccc; cursor:pointer;">キャンセル</button>
             </div>
         </form>
-
     </body>
 </div>
 @endsection

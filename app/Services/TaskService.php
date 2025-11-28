@@ -3,36 +3,62 @@
 namespace App\Services;
 
 use App\Repositories\TaskRepository;
-use Exception;
+use App\Repositories\TagRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Task;
+use Exception;
 
-use function Symfony\Component\Clock\now;
 
 class TaskService
 {
-    protected $tasks;
+    protected $taskRepo;
+    protected $tagRepo;
 
-    public function __construct(TaskRepository $tasks)
+    public function __construct(TaskRepository $taskRepo, TagRepository $tagRepo)
     {
-        $this->tasks = $tasks;
+        $this->taskRepo = $taskRepo;
+        $this->tagRepo = $tagRepo;
     }
+
 
     public function getAllTasks()
     {
-        return $this->tasks->getAll();
+        return $this->taskRepo->getAll();
     }
 
     public function getFindTask($id)
     {
-        return $this->tasks->findById($id);
+        return $this->taskRepo->findById($id);
     }
 
-    public function createTask(array $data)
+    /**
+     * シンプル作成（タグなし）
+     */
+    public function createTask(array $data): Task
     {
-        return DB::transaction(function () use ($data){
-            $data['user_id'] = Auth::id();
-            $task = $this->tasks->create($data);
+        $data['user_id'] = Auth::id();
+        return $this->taskRepo->create($data);
+    }
+
+    public function createTaskWithTags(array $taskData, array $newTagNames, array $existingTagIds = []): Task
+    {
+        return DB::transaction(function () use ($taskData, $newTagNames, $existingTagIds) {
+
+            // ユーザー紐付け
+            $taskData['user_id'] = Auth::id();
+
+            // タスク作成
+            $task = $this->taskRepo->create($taskData);
+
+            // 新規タグ作成 or 取得
+            $newTagIds = $this->tagRepo->getOrCreateTags($newTagNames);
+
+            // 既存タグ + 新規タグ をマージ
+            $allTagIds = array_merge($existingTagIds, $newTagIds);
+
+            // 紐付け
+            $this->taskRepo->attachTags($task, $allTagIds);
 
             return $task;
         });
@@ -41,7 +67,7 @@ class TaskService
     public function updateTask($id, array $data)
     {
         return DB::transaction(function () use ($id, $data){
-            $task = $this->tasks->findById($id);
+            $task = $this->taskRepo->findById($id);
 
             // 完了タスクは更新禁止
             if($task->status === 'completed')
@@ -49,13 +75,13 @@ class TaskService
                 throw new Exception('完了したタスクは編集できません');
             }
 
-            return $this->tasks->update($id, $data);
+            return $this->taskRepo->update($id, $data);
         });
     }
 
     public function completeTask($id)
     {
-        return $this->tasks->update($id, [
+        return $this->taskRepo->update($id, [
             'status' => 'completed',
             'completed_at' => now(),
         ]);
@@ -63,12 +89,12 @@ class TaskService
 
     public function deleteTask($id)
     {
-        return $this->tasks->delete($id);
+        return $this->taskRepo->delete($id);
     }
 
     // 検索機能の処理はあらかじめ用意しておく
     public function searchTasks(array $filters)
     {
-        return $this->tasks->search($filters);
+        return $this->taskRepo->search($filters);
     }
 }

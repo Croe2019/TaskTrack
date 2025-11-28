@@ -2,47 +2,30 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\TaskController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\TaskTagController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])
-    ->middleware(['auth'])
-    ->name('dashboard');
 
-Route::get('tasks', [TaskController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('tasks.index');
-
-Route::get('tasks/create', [TaskController::class, 'create'])
-    ->middleware(['auth'])
-    ->name('tasks.create');
-
-Route::post('tasks/store', [TaskController::class, 'store'])
-    ->middleware(['auth'])
-    ->name('tasks.store');
-
-Route::get('tasks/show/{id}', [TaskController::class, 'show'])
-    ->middleware(['auth'])
-    ->name('tasks.show');
-
-Route::put('tasks/{task}', [TaskController::class, 'update'])
-    ->middleware(['auth'])
-    ->name('tasks.update');
-
-Route::delete('tasks/destroy/{id}', [TaskController::class, 'destroy'])
-    ->middleware(['auth'])
-    ->name('tasks.destroy');
-
-Route::patch('tasks/{task}/complete', [TaskController::class, 'complete'])
-    ->middleware(['auth'])
-    ->name('tasks.complete');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+    Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::get('tasks/{id}', [TaskController::class, 'show'])->name('tasks.show');
+    Route::get('tasks/{id}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
+    Route::put('tasks/{id}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('tasks/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::patch('tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('userProfile.userProfile');
@@ -52,6 +35,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::put('/comments/{commentId}', [CommentController::class, 'update'])->name('comments.update');
+
+    // タグ管理
+    Route::resource('tags', TagController::class)->except(['create', 'edit', 'show']);
+
+    // タグ付け
+    Route::put('/tasks/{id}/tags', [TaskTagController::class, 'update'])->name('tasks.tags.update');
+
 
 });
 
