@@ -78,7 +78,8 @@ class CommentController extends Controller
 
     public function destroy($id)
     {
-        $comment = $this->service->getFindComment($id);
+        $commentId = $this->service->getFindComment($id);
+        $comment = Comment::findOrFail($commentId);
 
         if ($comment->user_id !== Auth::id()) {
             return redirect()->back()->with('error', '他ユーザーのコメントは削除できません');
