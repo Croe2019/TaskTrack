@@ -18,12 +18,12 @@ class CommentService
 
     public function getFindComment($id)
     {
-        return $this->repository->getByTaskId($id);
+        return $this->repository->deleteByIds($id);
     }
 
     public function list($taskId)
     {
-        return $this->repository->getByTaskId($taskId);
+        return $this->repository->deleteByIds($taskId);
     }
 
     public function add($taskId, $content)
@@ -38,7 +38,7 @@ class CommentService
     public function update($id, array $data)
     {
         return DB::transaction(function () use ($id, $data){
-            $this->repository->getByTaskId($id);
+            $this->repository->deleteByIds($id);
 
             return $this->repository->update($id, $data);
         });
