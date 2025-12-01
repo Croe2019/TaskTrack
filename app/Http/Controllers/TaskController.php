@@ -24,8 +24,7 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        $filsters = $request->only(['keyword', 'status']);
-        $tasks = $this->service->searchTasks($filsters);
+        $tasks = Task::with(['attachments', 'tags'])->where('user_id', Auth::id())->get();
         return view('tasks.index', compact('tasks'));
     }
 
@@ -40,21 +39,15 @@ class TaskController extends Controller
     {
         $data = $request->validated();
 
-        // 既存タグ
         $existingTagIds = $data['tag_ids'] ?? [];
+        $newTagNames = !empty($data['tags']) ? array_map('trim', explode(',', $data['tags'])) : [];
+        $files = $request->file('attachments', []);
 
-        // 新規タグ（文字列 → 配列）
-        $newTagNames = [];
-        if (!empty($data['tags'])) {
-            $newTagNames = array_map('trim', explode(',', $data['tags']));
-        }
+        $this->service->createTaskWithTagsAndAttachments($data, $existingTagIds, $newTagNames, $files);
 
-        // サービス呼び出し
-        $this->service->createTaskWithTags($data, $newTagNames, $existingTagIds);
-
-        return redirect()->route('tasks.index')
-            ->with('success', 'タスクを作成しました');
+        return redirect()->route('tasks.index')->with('success', 'タスクを作成しました');
     }
+
 
     /**
      * 編集フォーム
@@ -76,34 +69,25 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        $task = $this->service->getFindTask($id);
+        $task = Task::with(['attachments', 'tags'])->findOrFail($id);
         return view('tasks.show', compact('task'));
     }
 
     // 更新
-    public function update(CreateTaskRequest $request, $id)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
-        $task = $this->service->getFindTask($id);
-
         $data = $request->validated();
+        $data['user_id'] = Auth::id();
 
-        // 既存タグ
+
         $existingTagIds = $data['tag_ids'] ?? [];
+        $newTagNames = !empty($data['tags']) ? array_map('trim', explode(',', $data['tags'])) : [];
+        $files = $request->file('attachments', []);
 
-        // 新規タグ（文字列 → 配列）
-        $newTagNames = [];
-        if (!empty($data['tags'])) {
-            $newTagNames = array_map('trim', explode(',', $data['tags']));
-        }
-        if ($task->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', '他ユーザーのタスクは編集できません');
-        }
 
-        try {
-            $this->service->updateTask($id, $request->validated(), $newTagNames, $existingTagIds);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        $this->service->updateTaskWithTagsAndAttachments(
+            $task, $data, $existingTagIds, $newTagNames, $files
+        );
 
         return redirect()->route('tasks.index')->with('success', 'タスクを更新しました');
     }

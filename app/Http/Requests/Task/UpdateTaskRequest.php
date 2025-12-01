@@ -28,9 +28,13 @@ class UpdateTaskRequest extends FormRequest
             'priority'     => 'required|string|in:high,medium,low',
             'deadline'     => 'nullable|date',
             'completed_at' => 'nullable|date_format:Y-m-d\TH:i',
-            // タグは後で作成する
-            // 'tags'         => 'nullable|array',
-            // 'tags.*'       => 'string|max:50',
+            // 既存タグ
+            'tag_ids'      => 'nullable|array',
+            'tag_ids.*'    => 'integer|exists:tags,id',
+
+            // 新規タグ
+            'tags'         => 'nullable|string',
+            'attachments.*' => 'nullable|file|max:20480',
         ];
     }
 

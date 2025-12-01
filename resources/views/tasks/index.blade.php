@@ -194,14 +194,18 @@
     background: #2563eb;
 }
 
+.task-tags {
+    margin-top: 8px;
+}
 .tag {
     display: inline-block;
-    background: #e2e8f0;
-    padding: 2px 6px;
+    background: #e2e2e2;
+    padding: 3px 8px;
     border-radius: 4px;
     margin-right: 5px;
     font-size: 12px;
 }
+
 </style>
 
 <div class="container">
@@ -238,11 +242,21 @@
             期限: {{ $task->deadline ? $task->deadline->format('Y-m-d') : '未設定' }} | 状態: {{ $task->status_label }}
         </div>
         <div class="task-tags">
-            @foreach($task->tags as $tag)
+            @foreach($task->tags ?? [] as $tag)
                 <span class="tag">{{ $tag->name }}</span>
             @endforeach
+
         </div>
 
+        <p>添付ファイル:
+            @if($task->attachments->isNotEmpty())
+                @foreach($task->attachments as $attachment)
+                    <a href="{{ asset('storage/'.$attachment->file_path) }}" target="_blank">
+                        {{ $attachment->original_name }}
+                    </a>
+                @endforeach
+            @endif
+        </p>
 
         <!-- コメント一覧 -->
         @foreach($task->comments as $comment)

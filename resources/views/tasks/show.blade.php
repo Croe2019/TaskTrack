@@ -21,6 +21,18 @@
             @endforeach
         </div>
 
+        <h3>添付ファイル</h3>
+        <ul>
+            @foreach($task->attachments as $attachment)
+                <li>
+                    <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank">
+                        {{ $attachment->original_name }}
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+
+
         <div class="button-area">
             <a href="{{ route('tasks.edit', $task->id) }}" class="btn-edit">編集</a>
             <a href="{{ route('tasks.index') }}" class="btn-back">戻る</a>

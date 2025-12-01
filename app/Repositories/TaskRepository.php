@@ -18,7 +18,7 @@ class TaskRepository
      */
     public function getAll($userId = null)
     {
-        $query = $this->task->with('comments.user', 'tags');
+        $query = $this->task->with('tags', 'attachments', 'comments.user');
         if ($userId) {
             $query->where('user_id', $userId);
         }
@@ -31,6 +31,16 @@ class TaskRepository
     public function findById($id)
     {
         return $this->task->with('comments.user', 'tags')->findOrFail($id);
+    }
+
+    public function attachTags(Task $task, array $tagIds)
+    {
+        $task->tags()->sync($tagIds); // 多対多リレーション
+    }
+
+    public function tagFindById($id)
+    {
+        return Task::with(['tags'])->findOrFail($id);
     }
 
     public function create(array $data)
@@ -49,14 +59,6 @@ class TaskRepository
     {
         $task = $this->task->findOrFail($id);
         return $task->delete();
-    }
-
-    /**
-     * タスクにタグを紐付け
-     */
-    public function attachTags($task, array $tagIds)
-    {
-        $task->tags()->sync($tagIds);
     }
 
     /**

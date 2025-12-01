@@ -59,6 +59,8 @@
             <h3>新しいタグ（カンマ区切り）</h3>
             <input type="text" name="tags" placeholder="例: 重要, クライアント, バグ">
 
+            <label>添付ファイル</label>
+            <input type="file" name="attachments[]" multiple style="margin-bottom:10px;">
 
             <!-- ボタン -->
             <div class="buttons" style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">

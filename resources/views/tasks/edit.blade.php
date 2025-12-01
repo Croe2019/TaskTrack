@@ -3,9 +3,19 @@
 @section('content')
 <div class="container edit-wrapper">
 
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <h2 class="title">タスク編集</h2>
 
-    <form method="POST" action="{{ route('tasks.update', $task->id) }}">
+    <form method="POST" action="{{ route('tasks.update', $task->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -66,8 +76,27 @@
         <!-- 新規タグ -->
         <div class="form-group">
             <label>新しいタグ（カンマ区切り）</label>
-            <input type="text" name="tags" placeholder="例: 重要, クライアント" value="">
+            <input type="text" name="tags" value="{{ old('tags') }}">
         </div>
+
+        @if ($task->attachments->isNotEmpty())
+            <div class="form-group">
+                <label>現在の添付ファイル</label>
+                <ul>
+                    @foreach ($task->attachments as $file)
+                        <li>
+                            <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank">
+                                {{ $file->original_name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+
+        <label>添付ファイル</label>
+        <input type="file" name="attachments[]" multiple style="margin-bottom:10px;">
 
         <div class="button-area">
             <button type="submit" class="btn-submit">更新</button>

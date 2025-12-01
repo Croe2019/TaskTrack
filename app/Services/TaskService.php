@@ -4,9 +4,13 @@ namespace App\Services;
 
 use App\Repositories\TaskRepository;
 use App\Repositories\TagRepository;
+use App\Repositories\TaskAttachmentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Task;
+use App\Models\Tag;
+use Illuminate\Support\Facades\Storage;
+use App\Models\TaskAttachment;
 use Exception;
 
 
@@ -41,58 +45,76 @@ class TaskService
         return $this->taskRepo->create($data);
     }
 
-    public function createTaskWithTags(array $taskData, array $newTagNames, array $existingTagIds = []): Task
+    /**
+     * タスク作成（タグ・添付ファイルを含む）
+     */
+    public function createTaskWithTagsAndAttachments($data, $existingTagIds, $newTagNames, $files)
     {
-        return DB::transaction(function () use ($taskData, $newTagNames, $existingTagIds) {
+        DB::transaction(function () use ($data, $existingTagIds, $newTagNames, $files) {
 
-            // ユーザー紐付け
-            $taskData['user_id'] = Auth::id();
+            $data['user_id'] = Auth::id();
 
-            // タスク作成
-            $task = $this->taskRepo->create($taskData);
+            // 1. タスク作成
+            $task = Task::create($data);
 
-            // 新規タグ作成 or 取得
+            // 2. 既存タグを紐づけ
+            if (!empty($existingTagIds)) {
+                $task->tags()->attach($existingTagIds);
+            }
+
+            // 3. 新規タグを作成して紐づけ
+            foreach ($newTagNames as $name) {
+                if ($name === '') continue;
+
+                $tag = Tag::firstOrCreate(['name' => $name]);
+                $task->tags()->attach($tag->id);
+            }
+
+            // 4. 添付ファイル処理
+            if (!empty($files)) {
+                foreach ($files as $file) {
+                    $path = $file->store('attachments', 'public');
+
+                    TaskAttachment::create([
+                        'task_id' => $task->id,
+                        'file_path' => $path,
+                        'original_name' => $file->getClientOriginalName(),
+                    ]);
+                }
+            }
+        });
+    }
+
+
+    public function updateTaskWithTagsAndAttachments(Task $task, array $data, array $existingTagIds = [], array $newTagNames = [], array $files = [])
+    {
+        return DB::transaction(function () use ($task, $data, $existingTagIds, $newTagNames, $files) {
+
+            // ① タスク更新
+            $data['user_id'] = Auth::id();
+            $task = $this->taskRepo->update($task->id, $data);
+
+            // ② 新規タグ作成
             $newTagIds = $this->tagRepo->getOrCreateTags($newTagNames);
 
-            // 既存タグ + 新規タグ をマージ
+            // ③ タグ紐付け
             $allTagIds = array_merge($existingTagIds, $newTagIds);
+            $task->tags()->sync($allTagIds);
 
-            // 紐付け
-            $this->taskRepo->attachTags($task, $allTagIds);
+            // ④ 添付ファイル
+            foreach ($files as $file) {
+                $path = $file->store('attachments', 'public');
+                TaskAttachment::create([
+                    'task_id' => $task->id,
+                    'file_path' => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                ]);
+            }
 
             return $task;
         });
     }
 
-    public function updateTask($id, array $data, array $newTagNames, array $existingTagIds = [])
-    {
-        return DB::transaction(function () use ($id, $data, $newTagNames, $existingTagIds){
-            $task = $this->taskRepo->findById($id);
-            // ユーザー紐付け
-            $taskData['user_id'] = Auth::id();
-
-            // 完了タスクは更新禁止
-            if($task->status === 'completed')
-            {
-                throw new Exception('完了したタスクは編集できません');
-            }
-
-             // 新規タグ作成 or 取得
-            $newTagIds = $this->tagRepo->getOrCreateTags($newTagNames);
-
-            // 既存タグ + 新規タグ をマージ
-            $allTagIds = array_merge($existingTagIds, $newTagIds);
-
-            // 紐付け
-            $this->taskRepo->attachTags($task, $allTagIds);
-
-            // 更新
-            $this->taskRepo->update($id, $data);
-
-            return $this->taskRepo;
-
-        });
-    }
 
     public function completeTask($id)
     {

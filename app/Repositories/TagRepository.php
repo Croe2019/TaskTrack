@@ -20,12 +20,12 @@ class TagRepository
         return Tag::where('name', $name)->first();
     }
 
-    public function getOrCreateTags(array $names): array
+     public function getOrCreateTags(array $names): array
     {
         $tagIds = [];
-
         foreach ($names as $name) {
-            if (empty($name)) continue;
+            $name = trim($name);
+            if (!$name) continue;
 
             $tag = Tag::firstOrCreate(
                 ['name' => $name],
@@ -34,7 +34,7 @@ class TagRepository
 
             $tagIds[] = $tag->id;
         }
-
         return $tagIds;
     }
+
 }
