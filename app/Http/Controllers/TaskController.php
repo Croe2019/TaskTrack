@@ -24,9 +24,30 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        $tasks = Task::with(['attachments', 'tags'])->where('user_id', Auth::id())->get();
+        // 基本のクエリ：ログインユーザーのタスクを取得
+        $query = Task::with(['attachments', 'tags'])->where('user_id', Auth::id());
+
+        // ステータスフィルター
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        // キーワード検索（タイトルまたはタグ名）
+        if ($keyword = $request->input('keyword')) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                ->orWhereHas('tags', function ($q2) use ($keyword) {
+                    $q2->where('name', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        // クエリ実行
+        $tasks = $query->get();
+
         return view('tasks.index', compact('tasks'));
     }
+
 
     public function create()
     {

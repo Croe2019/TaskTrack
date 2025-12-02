@@ -16,11 +16,6 @@ class CommentService
         $this->repository = $repository;
     }
 
-    public function getFindComment($id)
-    {
-        return $this->repository->deleteByIds($id);
-    }
-
     public function list($taskId)
     {
         return $this->repository->deleteByIds($taskId);
@@ -35,17 +30,23 @@ class CommentService
         ]);
     }
 
-    public function update($id, array $data)
+     /** コメント更新 */
+    public function update(int|array $ids, array $data): array
     {
-        return DB::transaction(function () use ($id, $data){
-            $this->repository->deleteByIds($id);
+        // 更新
+        $this->repository->updateByIds($ids, $data);
 
-            return $this->repository->update($id, $data);
-        });
+        // 更新したIDを返す（仕様）
+        return is_array($ids) ? $ids : [$ids];
     }
 
-    public function remove($id)
+    /** コメント削除 */
+    public function delete(int|array $ids): array
     {
-        return $this->repository->delete($id);
+        // 削除
+        $this->repository->deleteByIds($ids);
+
+        // 削除したIDを返す（仕様）
+        return is_array($ids) ? $ids : [$ids];
     }
 }

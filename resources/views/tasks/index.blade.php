@@ -137,6 +137,37 @@
 .task-buttons form button.delete:hover { background: #dc2626; }
 
 /* コメント */
+
+.comment-actions form button:hover,
+.comment-actions a:hover {
+    color: #2563eb;
+}
+
+.add-comment {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.add-comment input[type="text"] {
+    flex: 1;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.add-comment button {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: none;
+    background: #1d4ed8;
+    color: #fff;
+    cursor: pointer;
+}
+
+.add-comment button:hover {
+    background: #2563eb;
+}
 .comment {
     background: #f3f4f6;
     padding: 5px 10px;
@@ -206,6 +237,32 @@
     font-size: 12px;
 }
 
+.comment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f3f4f6;
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-top: 5px;
+}
+
+.comment-body {
+    flex: 1;
+    margin-right: 10px;
+    min-width: 0; /* 重要：長いテキストでも右側のボタンを押し出さない */
+}
+
+.comment-edit {
+    cursor: pointer;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 4px;
+    font-size: 14px;
+}
+
 </style>
 
 <div class="container">
@@ -224,7 +281,6 @@
             <a href="{{ route('tasks.index', ['status' => 'not_started']) }}">未着手</a>
         </div>
     </div>
-
 
     <!-- 新規タスク -->
     <div class="add-task">
@@ -260,23 +316,42 @@
 
         <!-- コメント一覧 -->
         @foreach($task->comments as $comment)
-        <div class="comment">
-            <div>
-                <span class="comment-author">{{ $comment->user->name }}:</span> {{ $comment->content }}
-            </div>
             @if($comment->user_id === auth()->id())
-            <div class="comment-actions">
-                <a href="{{ route('comments.update', $comment->id) }}">編集</a>
-                <form method="POST" action="{{ route('comments.destroy', $comment->id) }}" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" onclick="return confirm('コメントを削除しますか？')">削除</button>
-                </form>
+            <div class="comment">
+                <div class="comment-body">
+                    <span class="comment-author">{{ optional($comment->user)->name ?? '不明なユーザー' }}:</span>
+
+                    <div class="comment-edit" data-comment-id="{{ $comment->id }}">
+                        <!-- 表示モード -->
+                        <span class="comment-display">{{ $comment->content }}</span>
+
+                        <!-- 入力モード -->
+                        <input type="text"
+                            name="content"
+                            class="comment-input"
+                            value="{{ $comment->content }}"
+                            style="display:none;">
+                    </div>
+                </div>
+
+                <div class="comment-actions">
+                    <!-- 編集フォーム -->
+                    <form method="POST" action="{{ route('comments.update', $comment->id) }}" class="comment-form">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="edit-btn" disabled>編集</button>
+                    </form>
+
+                    <!-- 削除フォーム -->
+                    <form method="POST" action="{{ route('comments.destroy', $comment->id) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" onclick="return confirm('コメントを削除しますか？')">削除</button>
+                    </form>
+                </div>
             </div>
             @endif
-        </div>
         @endforeach
-
         <!-- コメント追加 -->
         @auth
         <form method="POST" action="{{ route('comments.store', $task->id) }}" class="add-comment">
@@ -310,6 +385,51 @@
         </div>
     </div>
     @endforeach
-
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.comment').forEach(commentEl => {
+        const editBox = commentEl.querySelector('.comment-edit');
+        const display = editBox.querySelector('.comment-display');
+        const input = editBox.querySelector('.comment-input');
+        const form = commentEl.querySelector('.comment-form');
+        const submitBtn = form.querySelector('.edit-btn');
+
+        const originalValue = input.value;
+        submitBtn.disabled = true;
+
+        editBox.addEventListener('click', function () {
+            display.style.display = 'none';
+            input.style.display = 'inline-block';
+            input.focus();
+        });
+
+        input.addEventListener('input', function () {
+            submitBtn.disabled = (input.value === originalValue);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (input.value !== originalValue) form.submit();
+            } else if (e.key === 'Escape') {
+                input.value = originalValue;
+                display.style.display = 'inline';
+                input.style.display = 'none';
+                submitBtn.disabled = true;
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            display.textContent = input.value;
+            display.style.display = 'inline';
+            input.style.display = 'none';
+            submitBtn.disabled = (input.value === originalValue);
+        });
+    });
+});
+
+</script>
+
 @endsection

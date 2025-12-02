@@ -7,34 +7,27 @@ use Illuminate\Support\Facades\DB;
 
 class CommentRepository
 {
-    public function deleteByIds(int|array $commentIds): int
-    {
-        // 配列でない場合配列に変換
-        if(!is_array($commentIds))
-        {
-            $commentIds = [$commentIds];
-        }
-
-        // トランザクションで削除(必要に応じて)
-        return DB::transaction(function () use ($commentIds) {
-            return Comment::whereIn('id', $commentIds)->delete();
-        });
-    }
-
     public function create(array $data)
     {
         return Comment::create($data);
     }
 
-    public function update($id, array $data)
+    public function updateByIds(array|int $ids, array $data): int
     {
-        $comment = Comment::findOrFail($id);
-        $comment->update($data);
-        return $comment;
+        if (!is_array($ids)) $ids = [$ids];
+
+        return Comment::whereIn('id', $ids)->update($data);
     }
 
-    public function delete($id)
+    public function deleteByIds(array|int $ids): int
     {
-        return Comment::destroy($id);
+        if (!is_array($ids)) $ids = [$ids];
+
+        return Comment::whereIn('id', $ids)->delete();
+    }
+
+    public function findById($id)
+    {
+        return Comment::find($id);
     }
 }
