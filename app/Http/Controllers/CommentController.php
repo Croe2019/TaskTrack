@@ -66,27 +66,18 @@ class CommentController extends Controller
      */
    public function update(UpdateCommentRequest $request, $id)
     {
-        $comment = $this->service->getFindComment($id);
+            $updatedIds = $this->service->update($id, [
+            'content' => $request->content
+        ]);
 
-        if ($comment->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', '他ユーザーのコメントは編集できません');
-        }
-
-        $this->service->update($id, $request->validated());
-        return back()->with('success', 'コメントを更新しました');
+        return back()->with('updated_ids', $updatedIds);
     }
 
     public function destroy($id)
     {
-        $commentId = $this->service->getFindComment($id);
-        $comment = Comment::findOrFail($commentId);
+        $deletedIds = $this->service->delete($id);
 
-        if ($comment->user_id !== Auth::id()) {
-            return redirect()->back()->with('error', '他ユーザーのコメントは削除できません');
-        }
-
-        $this->service->remove($id);
-        return back()->with('success', 'コメントを削除しました');
+        return back()->with('deleted_ids', $deletedIds);
     }
 
 }
