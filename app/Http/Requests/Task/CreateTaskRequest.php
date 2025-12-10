@@ -38,8 +38,10 @@ class CreateTaskRequest extends FormRequest
 
             // 新規タグ
             'tags'         => 'nullable|string',
+            // 'attachments'   => 'nullable|array',
+            // 'attachments.*' => 'file|max:20480',
         ];
-}
+    }
 
 
     public function messages()

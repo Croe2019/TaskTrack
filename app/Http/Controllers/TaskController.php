@@ -24,8 +24,8 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        // 基本のクエリ：ログインユーザーのタスクを取得
-        $query = Task::with(['attachments', 'tags'])->where('user_id', Auth::id());
+        // 基本のクエリ：ログインユーザーのタスクを取得 TODO ここから再開
+        $query = Task::with(['attachments', 'tags', 'comments.user'])->where('user_id', Auth::id());
 
         // ステータスフィルター
         if ($status = $request->input('status')) {
@@ -44,6 +44,7 @@ class TaskController extends Controller
 
         // クエリ実行
         $tasks = $query->get();
+        //dd($tasks->first()->attachments);
 
         return view('tasks.index', compact('tasks'));
     }
