@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('tasks', function (Blueprint $table) {
-
+        Schema::table('task_attachments', function (Blueprint $table) {
+            $table->string('original_name')->nullable()->after('file_path');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('tasks', function (Blueprint $table) {
-            //
+        Schema::table('task_attachments', function (Blueprint $table) {
+            $table->dropColumn('original_name');
         });
     }
 };
