@@ -32,6 +32,31 @@
             @endforeach
         </ul>
 
+        <div class="mt-4">
+            @if($task->work_start_at)
+                <p class="text-green-600 text-sm">
+                    作業中（{{ $task->work_start_at->format('H:i') }}〜）
+                </p>
+                <form action="{{ route('tasks.stop', $task) }}" method="POST">
+                    @csrf
+                    <button class="bg-red-600 text-white px-4 py-2 rounded">
+                        作業停止
+                    </button>
+                </form>
+            @else
+                <form action="{{ route('tasks.start', $task) }}" method="POST">
+                    @csrf
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded">
+                        作業開始
+                    </button>
+                </form>
+            @endif
+        </div>
+
+        <p class="text-gray-700 mt-3">
+            累積作業時間：{{ $task->current_minutes }} 分
+        </p>
+
 
         <div class="button-area">
             <a href="{{ route('tasks.edit', $task->id) }}" class="btn-edit">編集</a>

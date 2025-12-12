@@ -9,11 +9,24 @@ use App\Models\Comment;
 class Task extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'description', 'status', 'priority', 'deadline', 'completed_at', 'user_id'];
+    protected $fillable = [
+        'title',
+        'description',
+        'status',
+        'priority',
+        'deadline',
+        'completed_at',
+        'user_id',
+        'work_start_at',
+        'worked_minutes',
+        'current_minutes',
+    ];
     // 日付カラムをCarbonに変換
     protected $casts = [
         'deadline'     => 'datetime',
         'completed_at' => 'datetime',
+        'work_start_at' => 'datetime',
+
     ];
 
     // 完全自動化するために記述
