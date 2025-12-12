@@ -8,9 +8,12 @@
 
     <div class="bg-white p-5 rounded-xl shadow mb-6">
         <p class="text-lg font-semibold">
-            ✔ 今月のタスク： <span class="font-bold text-blue-600">24件</span>　
-            完了： <span class="font-bold text-green-600">18件</span>　
-            完了率： <span class="font-bold text-purple-600">75%</span>
+            ✔ 今月のタスク：
+            <span class="font-bold text-blue-600">{{ $monthlyTask }}件</span>　
+            完了：
+            <span class="font-bold text-green-600">{{ $monthlyCompleted }}件</span>　
+            完了率：
+            <span class="font-bold text-purple-600">{{ $monthlyRate }}%</span>
         </p>
     </div>
 
@@ -25,21 +28,12 @@
         <h2 class="text-lg font-semibold mb-4">🕓 最近完了したタスク（5件）</h2>
 
         <ul class="space-y-3">
-            <li class="border-b pb-2">
-                ・「APIエンドポイント整備」 ✅ <span class="text-gray-600">10/10 完了</span>
-            </li>
-            <li class="border-b pb-2">
-                ・「UI改善」 ✅ <span class="text-gray-600">10/09 完了</span>
-            </li>
-            <li class="border-b pb-2">
-                ・「DBマイグレーション整理」 ✅ <span class="text-gray-600">10/08 完了</span>
-            </li>
-            <li class="border-b pb-2">
-                ・「メール通知実装」 ✅ <span class="text-gray-600">10/07 完了</span>
-            </li>
-            <li>
-                ・「デザイン調整」 ✅ <span class="text-gray-600">10/06 完了</span>
-            </li>
+            @foreach ($allTasks as $task)
+                <li class="border-b pb-2">
+                    ・「{{ $task->title }}」
+                    ✅ <span class="text-gray-600">{{ optional($task->completed_at)->format('Y-m-d') }} 完了</span>
+                </li>
+            @endforeach
         </ul>
     </div>
 
@@ -53,10 +47,10 @@
     const taskChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['4月', '5月', '6月', '7月', '8月', '9月'],
+            labels: @json($monthlyCounts->pluck('month')),
             datasets: [{
                 label: '完了タスク数',
-                data: [12, 19, 5, 17, 23, 18],
+                data: @json($monthlyCounts->pluck('count')),
                 borderWidth: 1,
                 backgroundColor: 'rgba(54, 162, 235, 0.5)'
             }]
