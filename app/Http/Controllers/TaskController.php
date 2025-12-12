@@ -10,9 +10,12 @@ use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 
 class TaskController extends Controller
 {
+    use AuthorizesRequests;
     protected TaskService $service;
     protected TagRepository $tagRepo;
 
@@ -44,7 +47,6 @@ class TaskController extends Controller
 
         // クエリ実行
         $tasks = $query->get();
-        //dd($tasks->first()->attachments);
 
         return view('tasks.index', compact('tasks'));
     }
@@ -92,6 +94,14 @@ class TaskController extends Controller
     public function show($id)
     {
         $task = Task::with(['attachments', 'tags'])->findOrFail($id);
+        if ($task->work_start_at) {
+                // 作業中なら現在時刻まで加算した値を追加
+                $task->current_minutes =
+                    $task->worked_minutes +
+                    $task->work_start_at->diffInMinutes(now());
+            } else {
+                $task->current_minutes = $task->worked_minutes;
+            }
         return view('tasks.show', compact('task'));
     }
 
@@ -140,4 +150,39 @@ class TaskController extends Controller
         $this->service->completeTask($id);
         return redirect()->route('tasks.index')->with('success', 'タスクを完了しました');
     }
+
+    public function start(Task $task)
+    {
+        $this->authorize('update', $task);
+
+        if ($task->work_start_at) {
+            return back()->with('error', 'すでに作業中です。');
+        }
+
+        $task->update([
+            'work_start_at' => now(),
+        ]);
+
+        return back()->with('success', '作業を開始しました。');
+    }
+
+
+    public function stop(Task $task)
+    {
+        $this->authorize('update', $task);
+
+        if (!$task->work_start_at) {
+            return back()->with('error', '作業は開始されていません。');
+        }
+
+        $minutes = $task->work_start_at->diffInMinutes(now());
+
+        $task->update([
+            'worked_minutes' => $task->worked_minutes + $minutes,
+            'work_start_at' => null,
+        ]);
+
+        return back()->with('success', '作業を停止しました。');
+    }
+
 }

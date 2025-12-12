@@ -8,6 +8,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskTagController;
+use App\Http\Controllers\PerformanceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,9 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::put('tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('tasks/{id}', [TaskController::class, 'destroy'])->name('tasks.destroy');
     Route::patch('tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
-});
 
-Route::middleware(['auth'])->group(function () {
+    Route::post('/tasks/{task}/start', [TaskController::class, 'start'])->name('tasks.start');
+    Route::post('/tasks/{task}/stop', [TaskController::class, 'stop'])->name('tasks.stop');
+
     Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('userProfile.userProfile');
     // 後で実装する
     Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
@@ -42,13 +44,15 @@ Route::middleware(['auth'])->group(function () {
     // タグ付け
     Route::put('/tasks/{id}/tags', [TaskTagController::class, 'update'])->name('tasks.tags.update');
 
-
-});
-
-Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
+    Route::get('/performance/export/csv', [PerformanceController::class, 'exportCsv'])->name('performance.export.csv');
+    Route::get('/performance/export/excel', [PerformanceController::class, 'exportExcel'])->name('performance.export.excel');
+
+
 });
 
 require __DIR__.'/auth.php';
