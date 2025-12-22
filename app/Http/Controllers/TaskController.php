@@ -27,28 +27,28 @@ class TaskController extends Controller
 
     public function index(Request $request)
     {
-        // 基本のクエリ：ログインユーザーのタスクを取得 TODO ここから再開
-        $query = Task::with(['attachments', 'tags', 'comments.user'])->where('user_id', Auth::id());
+        $query = Task::with(['attachments','tags','comments.user']);
+        // セッションで current_team_id がある → チームタスク。なければ個人タスク（user_id）
+        if ($teamId = session('current_team_id')) {
+            $query->where('team_id', $teamId);
+        } else {
+            $query->where('user_id', Auth::id());
+        }
 
-        // ステータスフィルター
+        // 既存のフィルタ処理を差し込み（status, keyword 等）
         if ($status = $request->input('status')) {
             $query->where('status', $status);
         }
-
-        // キーワード検索（タイトルまたはタグ名）
         if ($keyword = $request->input('keyword')) {
-            $query->where(function ($q) use ($keyword) {
+            $query->where(function($q) use ($keyword) {
                 $q->where('title', 'like', "%{$keyword}%")
-                ->orWhereHas('tags', function ($q2) use ($keyword) {
-                    $q2->where('name', 'like', "%{$keyword}%");
-                });
+                ->orWhereHas('tags', fn($q2) => $q2->where('name', 'like', "%{$keyword}%"));
             });
         }
 
-        // クエリ実行
         $tasks = $query->get();
-
         return view('tasks.index', compact('tasks'));
+
     }
 
 
@@ -85,7 +85,7 @@ class TaskController extends Controller
         }
 
         $tags = $this->tagRepo->getAll();
-        return view('tasks.edit', compact('task', 'tags'));
+        return view('teams.edit', compact('task', 'tags'));
     }
 
     /**

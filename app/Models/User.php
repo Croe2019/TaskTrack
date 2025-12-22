@@ -52,4 +52,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(Task::class);
     }
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class)
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    public function ownedTeams()
+    {
+        return $this->hasMany(Team::class);
+    }
+
+    public function teamInvitations()
+    {
+        return $this->hasMany(TeamInvitation::class, 'invitee_id');
+    }
+
+
 }

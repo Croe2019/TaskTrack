@@ -24,7 +24,7 @@
 
                 <li><a href="{{ route('tasks.index') }}" class="hover:text-blue-600">タスク一覧</a></li>
                 <li><a href="{{ route('performance.index') }}" class="hover:text-blue-600">実績</a></li>
-                <li><a href="" class="hover:text-blue-600">チーム</a></li>
+                <li><a href="{{ route('teams.index') }}" class="hover:text-blue-600">チーム</a></li>
                 <li><a href="{{ route('userProfile.userProfile') }}" class="hover:text-blue-600">プロフィール</a></li>
 
                 <!-- Logout -->
@@ -42,7 +42,10 @@
     <!-- メインコンテンツ -->
     <main class="max-w-7xl mx-auto px-4 py-6">
         @yield('content')
+
     </main>
+    @include('layouts.delete-modal')
+
 
     <!-- フッター -->
     <footer class="text-center py-4 text-gray-600 text-sm">
