@@ -2,6 +2,7 @@
 
 @section('content')
     {{-- コメント一覧 --}}
+<div class="container">
      <p>{{ $task->title }}</p>
     <p>{{ $task->description }}</p>
     {{-- コメント投稿 --}}
@@ -12,6 +13,7 @@
             <button class="mt-2 px-3 py-1 bg-blue-600 text-white">投稿</button>
         </form>
     @endcan
+</div>
 
 @forelse ($task->comments as $comment)
     <div class="border p-2 mb-2">
@@ -34,7 +36,6 @@
                 <button type="button" class="text-red-600 text-sm js-delete" data-action="{{ route('teams.tasks.comments.destroy', [$team, $task, $comment]) }}">
                     削除
                 </button>
-
             @endcan
         </div>
 
@@ -65,9 +66,11 @@
 
 @endsection
 
-<script>
-    function toggleEdit(id) {
-        const form = document.getElementById('edit-form-' + id);
-        form.classList.toggle('hidden');
-    }
-</script>
+@push('scripts')
+    <script>
+        function toggleEdit(id) {
+            const form = document.getElementById('edit-form-' + id);
+            form.classList.toggle('hidden');
+        }
+    </script>
+@endpush
