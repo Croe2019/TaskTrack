@@ -28,6 +28,7 @@
                 <li><a href="{{ route('userProfile.userProfile') }}" class="hover:text-blue-600">プロフィール</a></li>
 
                 <!-- Logout -->
+                <!-- Logout -->
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -51,6 +52,11 @@
     <footer class="text-center py-4 text-gray-600 text-sm">
         © TaskTrack 2025
     </footer>
+
+    @stack('scripts')
+
+</body>
+</html>
 
 </body>
 </html>

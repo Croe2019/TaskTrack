@@ -2,6 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('delete-modal');
     const form  = document.getElementById('delete-form');
     const cancel = document.getElementById('delete-cancel');
+    const deleteButtons = document.querySelectorAll('.js-delete');
+
+    deleteButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            window.dispatchEvent(
+                new CustomEvent('open-delete-modal', {
+                    detail: { action: button.dataset.action },
+                }),
+            );
+        });
+    });
 
     if (!modal) return;
 
