@@ -9,6 +9,13 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaskTagController;
 use App\Http\Controllers\PerformanceController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TeamMemberController;
+use App\Http\Controllers\TeamInvitationController;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\TeamOwnerController;
+use App\Http\Controllers\TeamTaskController;
+use App\Http\Controllers\TeamTaskCommentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -51,6 +58,82 @@ Route::middleware('auth')->group(function () {
     Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
     Route::get('/performance/export/csv', [PerformanceController::class, 'exportCsv'])->name('performance.export.csv');
     Route::get('/performance/export/excel', [PerformanceController::class, 'exportExcel'])->name('performance.export.excel');
+
+    // チーム関連
+    Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
+    Route::get('/create', [TeamController::class, 'create'])->name('teams.create');
+    Route::post('/store', [TeamController::class, 'store'])->name('teams.store');
+    Route::get('/show/{team}', [TeamController::class, 'show'])->name('teams.show');
+    Route::get('/edit/{team}', [TeamController::class, 'edit'])->name('teams.edit');
+    Route::put('/update/{team}', [TeamController::class, 'update'])->name('teams.update');
+    Route::delete('/delete/{team}', [TeamController::class, 'destroy'])->name('teams.destroy');
+
+    Route::get('teams/{team}/members', [TeamMemberController::class, 'index'])->name('teams.members.index');
+    Route::post('teams/{team}/members', [TeamMemberController::class, 'addMember'])->name('teams.members.addMember');
+    Route::patch('teams/{team}/members/{user}', [TeamMemberController::class, 'updateRole'])->name('teams.members.updateRole');
+    Route::delete('teams/{team}/members/{user}', [TeamMemberController::class, 'removeMember'])->name('teams.members.remove');
+
+    Route::get('/teams/invites/index',
+        [TeamInvitationController::class, 'index']
+    )->name('invites.index');
+
+     // 招待入力画面（GET）
+    Route::get('/teams/{team}/invites/create',
+        [TeamInvitationController::class, 'create']
+    )->name('teams.invites.create');
+
+    // 招待リンク
+    Route::post('/teams/{team}/invites', [TeamInvitationController::class, 'store'])->name('teams.invites.store');
+
+    Route::patch('/invites/{invite}/accept', [TeamInvitationController::class, 'accept'])->name('invites.accept');
+
+    Route::patch('/invites/{invite}/reject', [TeamInvitationController::class, 'reject'])->name('invites.reject');
+
+
+    Route::get('teams/{team}/owner/transfer',[TeamOwnerController::class, 'create'])->name('teams.owner.transfer.create');
+
+    Route::patch('teams/{team}/owner/transfer',[TeamOwnerController::class, 'store'])->name('teams.owner.transfer.store');
+
+
+    Route::post('teams/switch', function(\Illuminate\Http\Request $r){
+        $teamId = $r->input('team_id');
+        if ($teamId) {
+            $team = \App\Models\Team::find($teamId);
+            if ($team && $team->members()->where('user_id', Auth::id())->exists()) {
+                session(['current_team_id' => $teamId]);
+            } else {
+                session()->forget('current_team_id');
+            }
+        } else {
+            session()->forget('current_team_id');
+        }
+        return back();
+    })->name('teams.switch')->middleware('auth');
+
+    Route::get('teams/{team}/dashboard', [TeamController::class, 'dashboard'])->name('teams.dashboard');
+
+    Route::prefix('teams/{team}')
+        ->name('teams.')
+        ->group(function () {
+
+        Route::prefix('tasks/{task}')
+        ->name('tasks.')
+        ->group(function () {
+
+            Route::post('comments', [TeamTaskCommentController::class, 'store'])->name('comments.store');
+            Route::delete('comments/{comment}', [TeamTaskCommentController::class, 'destroy'])->name('comments.destroy');
+            Route::patch('comments/{comment}', [TeamTaskCommentController::class, 'update'])->name('comments.update');
+        });
+
+        Route::get('tasks', [TeamTaskController::class, 'index'])->name('tasks.index');
+        Route::get('tasks/create', [TeamTaskController::class, 'create'])->name('tasks.create');
+        Route::post('tasks', [TeamTaskController::class, 'store'])->name('tasks.store');
+        Route::get('tasks/{task}/edit', [TeamTaskController::class, 'edit'])->name('tasks.edit');
+        Route::patch('tasks/{task}', [TeamTaskController::class, 'update'])->name('tasks.update');
+        Route::delete('tasks/{task}', [TeamTaskController::class, 'destroy'])->name('tasks.destroy');
+        Route::get('tasks/{task}', [TeamTaskController::class, 'show'])->name('tasks.show');
+        Route::patch('tasks/{task}/status', [TeamTaskController::class, 'updateStatus'])->name('tasks.updateStatus');
+    });
 
 
 });
