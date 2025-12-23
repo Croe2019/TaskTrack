@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Team;
+use App\Models\TeamTask;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use App\Services\TeamService;
@@ -33,36 +34,6 @@ class TeamController extends Controller
 
     }
 
-    public function dashboard(Team $team, Request $request)
-    {
-        $this->authorize('view', $team);
-
-        // 月別集計（過去6ヶ月）
-        $start = now()->subMonths(5)->startOfMonth();
-        $data = \App\Models\Task::query()
-            ->where('team_id', $team->id)
-            ->whereNotNull('completed_at')
-            ->where('completed_at', '>=', $start)
-            ->selectRaw("DATE_FORMAT(completed_at, '%Y-%m') as ym, count(*) as cnt, sum(coalesce(worked_minutes,0)) as mins")
-            ->groupBy('ym')
-            ->orderBy('ym')
-            ->get();
-
-        $labels = $data->pluck('ym')->map(fn($v)=>\Carbon\Carbon::createFromFormat('Y-m',$v)->format('Y/m'))->toArray();
-        $counts = $data->pluck('cnt')->toArray();
-
-        $summary = [
-            'completed_count' => $data->sum('cnt'),
-            'total_minutes' => $data->sum('mins'),
-        ];
-
-        return view('teams.dashboard', [
-            'team' => $team,
-            'chart' => ['labels' => $labels, 'data' => $counts],
-            'summary' => $summary,
-        ]);
-    }
-
 
     public function create()
     {
@@ -80,11 +51,11 @@ class TeamController extends Controller
     {
         $team->load(['members', 'tasks']);
 
-        $completed = $team->tasks()
-            ->whereNotNull('completed_at')
+        $completed = $team->teamTasks()
+            ->where('status', 'done')
             ->count();
 
-        $total = $team->tasks()->count();
+        $total = $team->teamTasks()->count();
 
         $completionRate = $total > 0
             ? round(($completed / $total) * 100)

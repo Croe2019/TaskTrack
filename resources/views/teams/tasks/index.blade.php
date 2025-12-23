@@ -44,14 +44,10 @@
             {{-- ステータス --}}
             <td class="p-2 border">
                 @can('updateStatus', $task)
-                    <form method="POST"
-                        action="{{ route('teams.tasks.updateStatus', [$team, $task]) }}"
-                        class="inline-flex">
+                    <form method="POST" action="{{ route('teams.tasks.updateStatus', [$team, $task]) }}">
                         @csrf
                         @method('PATCH')
-                        <select name="status"
-                                onchange="this.form.submit()"
-                                class="border rounded px-2 py-1 text-sm">
+                        <select name="status" onchange="this.form.submit()">
                             <option value="open"  @selected($task->status==='open')>未着手</option>
                             <option value="doing" @selected($task->status==='doing')>進行中</option>
                             <option value="done"  @selected($task->status==='done')>完了</option>

@@ -5,6 +5,10 @@
 
     {{-- ヘッダー --}}
     <div class="flex gap-3 mt-4">
+        <a href="{{ route('teams.tasks.dashboard', $team) }}"
+        class="inline-block mt-4 text-blue-600 hover:underline">
+            ダッシュボード
+        </a>
 
         @can('updateTeam', $team)
             <a href="{{ route('teams.edit', $team) }}"
@@ -37,10 +41,10 @@
 
         <div class="bg-white p-4 rounded-xl shadow">
             <small class="text-gray-500">総タスク数</small>
-            @if($team->tasks->isEmpty())
+            @if(!$team->tasks->isEmpty())
                 タスクはありません
             @else
-                <h3 class="text-2xl font-bold">{{ $team->tasks->count() }} 件</h3>
+                <h3 class="text-2xl font-bold">{{ $team->teamTasks->count() }} 件</h3>
             @endif
         </div>
 
@@ -90,7 +94,7 @@
         <div class="bg-white p-5 rounded-xl shadow">
             <h2 class="text-lg font-semibold mb-4">📋 最近のタスク</h2>
 
-            @forelse ($team->tasks->take(5) as $task)
+            @forelse ($team->teamTasks->take(5) as $task)
                 <div class="border-b pb-2 mb-2">
                     <p class="font-medium">{{ $task->title }}</p>
                     <small class="text-gray-500">

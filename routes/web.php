@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\TeamOwnerController;
 use App\Http\Controllers\TeamTaskController;
 use App\Http\Controllers\TeamTaskCommentController;
+use App\Http\Controllers\TeamTaskWorkLogController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -110,30 +112,40 @@ Route::middleware('auth')->group(function () {
         return back();
     })->name('teams.switch')->middleware('auth');
 
-    Route::get('teams/{team}/dashboard', [TeamController::class, 'dashboard'])->name('teams.dashboard');
 
     Route::prefix('teams/{team}')
         ->name('teams.')
         ->group(function () {
 
-        Route::prefix('tasks/{task}')
-        ->name('tasks.')
-        ->group(function () {
+            // チーム単位のダッシュボード（task不要）
+            Route::get('tasks/dashboard', [TeamTaskController::class, 'dashboard'])
+                ->name('tasks.dashboard');
 
-            Route::post('comments', [TeamTaskCommentController::class, 'store'])->name('comments.store');
-            Route::delete('comments/{comment}', [TeamTaskCommentController::class, 'destroy'])->name('comments.destroy');
-            Route::patch('comments/{comment}', [TeamTaskCommentController::class, 'update'])->name('comments.update');
+            // タスク（resource）
+            Route::resource('tasks', TeamTaskController::class)
+                ->parameters(['tasks' => 'task']);
+
+            Route::patch('tasks/{task}/status', [TeamTaskController::class, 'updateStatus'])
+                ->name('tasks.updateStatus');
+
+            // コメント（task配下）
+            Route::prefix('tasks/{task}')
+                ->name('tasks.')
+                ->group(function () {
+                    Route::post('comments', [TeamTaskCommentController::class, 'store'])
+                        ->name('comments.store');
+                    Route::delete('comments/{comment}', [TeamTaskCommentController::class, 'destroy'])
+                        ->name('comments.destroy');
+                    Route::patch('comments/{comment}', [TeamTaskCommentController::class, 'update'])
+                        ->name('comments.update');
+
+                    // work logs
+                    Route::post('work-logs', [TeamTaskWorkLogController::class, 'store'])->name('workLogs.store');
+                    Route::patch('work-logs/{workLog}', [TeamTaskWorkLogController::class, 'update'])->name('workLogs.update');
+                    Route::delete('work-logs/{workLog}', [TeamTaskWorkLogController::class, 'destroy'])->name('workLogs.destroy');
+                });
         });
 
-        Route::get('tasks', [TeamTaskController::class, 'index'])->name('tasks.index');
-        Route::get('tasks/create', [TeamTaskController::class, 'create'])->name('tasks.create');
-        Route::post('tasks', [TeamTaskController::class, 'store'])->name('tasks.store');
-        Route::get('tasks/{task}/edit', [TeamTaskController::class, 'edit'])->name('tasks.edit');
-        Route::patch('tasks/{task}', [TeamTaskController::class, 'update'])->name('tasks.update');
-        Route::delete('tasks/{task}', [TeamTaskController::class, 'destroy'])->name('tasks.destroy');
-        Route::get('tasks/{task}', [TeamTaskController::class, 'show'])->name('tasks.show');
-        Route::patch('tasks/{task}/status', [TeamTaskController::class, 'updateStatus'])->name('tasks.updateStatus');
-    });
 
 
 });
