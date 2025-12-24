@@ -36,6 +36,23 @@ class TeamPolicy
                 ->exists();
     }
 
+    public function manageMembers(User $user, Team $team)
+    {
+        $member = $team->members()
+            ->where('users.id', $user->id)
+            ->first();
+
+        if (! $member) {
+            return false;
+        }
+
+        if (in_array($member->pivot->role, ['owner', 'admin'])) {
+            return true;
+        }
+
+        return Response::deny('メンバーを管理する権限がありません');
+    }
+
     public function transferOwner(Team $team, User $newOwner)
     {
         $this->authorize('update', $team);

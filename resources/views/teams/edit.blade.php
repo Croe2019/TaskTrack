@@ -92,18 +92,22 @@
                             {{-- Admin 昇格 / 降格 --}}
                             @if ($member->pivot->role === 'member')
                                 <form method="POST"
-                                      action="{{ route('teams.promote-admin', [$team, $member]) }}"
+                                      action="{{ route('teams.members.updateRole', [$team, $member]) }}"
                                       class="inline">
                                     @csrf
+                                    @method('PATCH')
+                                     <input type="hidden" name="role" value="admin">
                                     <button class="px-2 py-1 text-sm bg-green-600 text-white rounded">
                                         Adminに昇格
                                     </button>
                                 </form>
                             @elseif ($member->pivot->role === 'admin')
                                 <form method="POST"
-                                      action="{{ route('teams.demote-admin', [$team, $member]) }}"
+                                      action="{{ route('teams.members.updateRole', [$team, $member]) }}"
                                       class="inline">
                                     @csrf
+                                    @method('PATCH')
+                                     <input type="hidden" name="role" value="member">
                                     <button class="px-2 py-1 text-sm bg-gray-500 text-white rounded">
                                         Admin解除
                                     </button>
