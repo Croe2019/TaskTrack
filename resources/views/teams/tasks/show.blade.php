@@ -11,6 +11,10 @@
             @csrf
             <textarea name="comment" class="w-full border p-2" rows="3"></textarea>
             <button class="mt-2 px-3 py-1 bg-blue-600 text-white">投稿</button>
+            <a href="{{ route('teams.tasks.index', $team) }}"
+            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                キャンセル
+            </a>
         </form>
     @endcan
 </div>
