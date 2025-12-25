@@ -3,7 +3,7 @@
 @section('content')
 <style>
 /* 全体コンテナ */
-.container {
+.tasks-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
@@ -11,7 +11,7 @@
 }
 
 /* 検索・フィルタ */
-.search-filter {
+.tasks-container .search-filter {
     background: #fff;
     padding: 15px;
     border-radius: 10px;
@@ -19,20 +19,20 @@
     margin-bottom: 20px;
 }
 
-.search-filter form {
+.tasks-container .search-filter form {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.search-filter input[type="text"] {
+.tasks-container .search-filter input[type="text"] {
     flex: 1;
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #ccc;
 }
 
-.search-filter button {
+.tasks-container .search-filter button {
     padding: 8px 15px;
     border-radius: 6px;
     border: none;
@@ -41,11 +41,11 @@
     cursor: pointer;
 }
 
-.search-filter button:hover {
+.tasks-container .search-filter button:hover {
     background: #2563eb;
 }
 
-.filters a {
+.tasks-container .filters a {
     display: inline-block;
     margin: 5px 5px 0 0;
     padding: 5px 10px;
@@ -55,17 +55,17 @@
     color: #000;
 }
 
-.filters a:hover {
+.tasks-container .filters a:hover {
     background: #d1d5db;
 }
 
 /* 新規タスクボタン */
-.add-task {
+.tasks-container .add-task a {
     text-align: right;
     margin-bottom: 20px;
 }
 
-.add-task a {
+.tasks-container .add-task a {
     display: inline-block;
     background: #16a34a;
     color: #fff;
@@ -74,12 +74,12 @@
     text-decoration: none;
 }
 
-.add-task a:hover {
+.tasks-container .add-task a:hover {
     background: #15803d;
 }
 
 /* タスクカード */
-.task-card {
+.tasks-container .task-card {
     background: #fff;
     padding: 15px;
     border-left: 5px solid #facc15;
@@ -88,36 +88,36 @@
     margin-bottom: 15px;
 }
 
-.task-header {
+.tasks-container .task-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.task-header h2 {
+.tasks-container .task-header h2 {
     margin: 0;
 }
 
-.priority-label {
+.tasks-container .priority-label {
     background: #fde68a;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 12px;
 }
 
-.task-meta {
+.tasks-container .task-meta {
     margin-top: 5px;
     color: #555;
 }
 
-.task-buttons {
+.tasks-container .task-buttons {
     margin-top: 10px;
     display: flex;
     gap: 5px;
 }
 
-.task-buttons a,
-.task-buttons form button {
+.tasks-container .task-buttons a,
+.tasks-container .task-buttons form button {
     padding: 5px 10px;
     border-radius: 6px;
     border: none;
@@ -127,36 +127,36 @@
     font-size: 12px;
 }
 
-.task-buttons a.edit { background: #3b82f6; }
-.task-buttons a.edit:hover { background: #2563eb; }
+.tasks-container .task-buttons a.edit { background: #3b82f6; }
+.tasks-container .task-buttons a.edit:hover { background: #2563eb; }
 
-.task-buttons form button.complete { background: #22c55e; }
-.task-buttons form button.complete:hover { background: #16a34a; }
+.tasks-container .task-buttons form button.complete { background: #22c55e; }
+.tasks-container .task-buttons form button.complete:hover { background: #16a34a; }
 
-.task-buttons form button.delete { background: #ef4444; }
-.task-buttons form button.delete:hover { background: #dc2626; }
+.tasks-container .task-buttons form button.delete { background: #ef4444; }
+.tasks-container .task-buttons form button.delete:hover { background: #dc2626; }
 
 /* コメント */
 
-.comment-actions form button:hover,
-.comment-actions a:hover {
+.tasks-container .comment-actions form button:hover,
+.tasks-container .comment-actions a:hover {
     color: #2563eb;
 }
 
-.add-comment {
+.tasks-container .add-comment {
     margin-top: 5px;
     display: flex;
     gap: 5px;
 }
 
-.add-comment input[type="text"] {
+.tasks-container .add-comment input[type="text"] {
     flex: 1;
     padding: 5px;
     border-radius: 6px;
     border: 1px solid #ccc;
 }
 
-.add-comment button {
+.tasks-container .add-comment button {
     padding: 5px 10px;
     border-radius: 6px;
     border: none;
@@ -165,10 +165,11 @@
     cursor: pointer;
 }
 
-.add-comment button:hover {
+.tasks-container .add-comment button:hover {
     background: #2563eb;
 }
-.comment {
+
+.tasks-container .comment {
     background: #f3f4f6;
     padding: 5px 10px;
     border-radius: 6px;
@@ -178,12 +179,12 @@
     align-items: center;
 }
 
-.comment-author {
+.tasks-container .comment-author {
     font-weight: bold;
 }
 
-.comment-actions a,
-.comment-actions form button {
+.tasks-container .comment-actions a,
+.tasks-container .comment-actions form button {
     font-size: 12px;
     color: #1d4ed8;
     background: none;
@@ -194,41 +195,17 @@
     text-decoration: underline;
 }
 
-.comment-actions form button:hover,
-.comment-actions a:hover {
+.tasks-container .comment-actions form button:hover,
+.tasks-container .comment-actions a:hover {
     color: #2563eb;
 }
 
-.add-comment {
-    margin-top: 5px;
-    display: flex;
-    gap: 5px;
-}
-
-.add-comment input[type="text"] {
-    flex: 1;
-    padding: 5px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-.add-comment button {
-    padding: 5px 10px;
-    border-radius: 6px;
-    border: none;
-    background: #1d4ed8;
-    color: #fff;
-    cursor: pointer;
-}
-
-.add-comment button:hover {
-    background: #2563eb;
-}
-
-.task-tags {
+.tasks-container .task-tags {
     margin-top: 8px;
 }
-.tag {
+
+
+.tasks-container .tag {
     display: inline-block;
     background: #e2e2e2;
     padding: 3px 8px;
@@ -237,27 +214,18 @@
     font-size: 12px;
 }
 
-.comment {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f3f4f6;
-    padding: 5px 10px;
-    border-radius: 6px;
-    margin-top: 5px;
-}
 
-.comment-body {
+.tasks-container .comment-body {
     flex: 1;
     margin-right: 10px;
     min-width: 0; /* 重要：長いテキストでも右側のボタンを押し出さない */
 }
 
-.comment-edit {
+.tasks-container .comment-edit {
     cursor: pointer;
 }
 
-.comment-input {
+.tasks-container .comment-input {
     width: 100%;
     padding: 4px;
     font-size: 14px;
@@ -265,7 +233,7 @@
 
 </style>
 
-<div class="container">
+<div class="container tasks-container">
 
     <!-- 検索・フィルタ -->
     <div class="search-filter">
