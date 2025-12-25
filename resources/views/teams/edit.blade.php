@@ -38,6 +38,11 @@
             <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 保存
             </button>
+
+            <a href="{{ route('teams.show', $team) }}"
+            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                キャンセル
+            </a>
         </form>
     </div>
 

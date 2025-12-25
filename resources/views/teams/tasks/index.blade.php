@@ -15,6 +15,11 @@
         class="inline-block mb-4 px-4 py-2 bg-blue-600 text-white rounded">
         タスク作成
         </a>
+
+        <a href="{{ route('teams.show', $team) }}"
+           class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+            戻る
+        </a>
     @endcan
 
 

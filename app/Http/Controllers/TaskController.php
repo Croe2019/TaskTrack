@@ -85,7 +85,7 @@ class TaskController extends Controller
         }
 
         $tags = $this->tagRepo->getAll();
-        return view('teams.edit', compact('task', 'tags'));
+        return view('tasks.edit', compact('task', 'tags'));
     }
 
     /**
