@@ -2,8 +2,6 @@
 
 @section('content')
 <div class="container">
-
-
     <h1 class="text-xl font-bold mb-4">
     {{ $team->name }} のタスク一覧
     </h1>

@@ -14,8 +14,10 @@
             </div>
         </div>
 
-        <div class="p-4 bg-white border rounded">
-            <canvas id="teamTasksChart" height="120"></canvas>
+        <div class="w-full overflow-x-auto">
+            <div class="p-4 bg-white border rounded min-w-full">
+                <canvas id="teamTasksChart" class="w-full h-64"></canvas>
+            </div>
         </div>
     </div>
 
@@ -50,6 +52,7 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
                     y: {

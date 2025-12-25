@@ -58,7 +58,7 @@
     </table>
 
     {{-- グラフ --}}
-    <div class="card p-4 mb-4">
+    <div class="card p-4 mb-4 h-64 md:h-80">
         <canvas id="taskChart"></canvas>
     </div>
 
@@ -95,7 +95,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    new Chart(document.getElementById('taskChart'), {
+     const taskChart = new Chart(document.getElementById('taskChart'), {
         type: 'line',
         data: {
             labels: @json($dailyCounts->keys()),
@@ -104,8 +104,13 @@
                  data: @json($dailyCounts->values()),
                 borderWidth: 2
             }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
         }
     });
+    window.addEventListener('resize', () => taskChart.resize());
 </script>
 
 @endsection
