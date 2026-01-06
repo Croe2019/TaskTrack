@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Team extends Model
 {
@@ -29,11 +30,17 @@ class Team extends Model
             ->exists();
     }
 
-    public function members()
+    public function ownersAndAdmins(): BelongsToMany
+    {
+        return $this->members()
+            ->wherePivotIn('role', ['owner', 'admin']);
+    }
+
+    public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-            ->withPivot('role')
-            ->withTimestamps();
+                    ->withPivot('role')
+                    ->withTimestamps();
     }
 
     public function tasks()

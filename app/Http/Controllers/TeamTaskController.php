@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Http\Requests\TeamTaskRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\TeamTaskWorkLog;
+use App\Events\TaskMarkedCompleted;
 use Illuminate\Support\Facades\DB;
 
 class TeamTaskController extends Controller
@@ -125,7 +126,13 @@ class TeamTaskController extends Controller
     {
         abort_unless($task->team_id === $team->id, 404);
         $this->authorize('update', $task);
+        $before = $task->status;
         $this->service->updateTaskForUser($task, Auth::user(), $request->all());
+        $task->refresh();
+        // doneに「遷移した瞬間」だけ送る（重複防止）
+        if ($before !== 'done' && $task->status === 'done') {
+            event(new TaskMarkedCompleted($task, Auth::user()));
+        }
         return back();
     }
 
@@ -179,6 +186,11 @@ class TeamTaskController extends Controller
         }
 
         $task->save();
+
+        // doneに「遷移した瞬間」だけ送る（重複防止）
+        if ($oldStatus !== 'done' && $newStatus === 'done') {
+            event(new TaskMarkedCompleted($task, Auth::user()));
+        }
 
         return back()->with('status', 'ステータスを更新しました');
     }
