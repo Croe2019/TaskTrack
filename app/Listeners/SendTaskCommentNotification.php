@@ -35,10 +35,6 @@ class SendTaskCommentNotification
             ->unique('id')
             ->reject(fn ($u) => $u->id === $actor->id);
 
-        foreach ($recipients as $user) {
-            $user->notify(new TaskCommented($task, $event->comment));
-        }
-        // まとめて送信
         Notification::send($recipients, new TaskCommented($task, $event->comment));
     }
 }
